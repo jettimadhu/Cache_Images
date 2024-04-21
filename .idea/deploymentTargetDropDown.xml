@@ -2,6 +2,9 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="CacheInstrumentedTest">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>
@@ -11,13 +14,10 @@
       <entry key="testDiskCacheWithMinCacheSize()">
         <State />
       </entry>
-      <entry key="testDiskSpaceAvailabilityWithCacheSizeToThrowIOException()">
+      <entry key="testDiskSpaceAvailabilityWithMaxCacheSize()">
         <State />
       </entry>
-      <entry key="testSaveAndGetImageToMemoryCacheWithColorTest()">
-        <State />
-      </entry>
-      <entry key="testSetupCorrect()">
+      <entry key="testValidityExpireForMemoryCachedImageToExpiry()">
         <State />
       </entry>
     </value>

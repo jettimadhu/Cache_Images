@@ -11,6 +11,7 @@ import com.display.photos.util.cache.DiskCache
 import com.display.photos.util.cache.MemoryCache
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -20,9 +21,6 @@ import org.junit.runner.RunWith
 import java.io.File
 import java.io.IOException
 import kotlin.math.abs
-
-
-//TODO: add BuildConfig.CACHE_TYPE check for each check and write those many test cases including negatives as it should store if the cache type is not mentioned.
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -37,6 +35,8 @@ class CacheInstrumentedTest {
     private lateinit var diskCacheDir: File
     private lateinit var diskCache: DiskCache
     private lateinit var cachedDataImpl: CachedDataImpl
+    private var isDiskTypeCache: Boolean = false
+    private var isMemoryTypeCache: Boolean = false
 
     @Test
     fun useAppContext() {
@@ -54,6 +54,10 @@ class CacheInstrumentedTest {
         memoryCache = MemoryCache()
         diskCache = DiskCache(diskCacheDir)
         cachedDataImpl = CachedDataImpl(memoryCache, diskCache)
+        isMemoryTypeCache = BuildConfig.CACHE_TYPE == CachedDataImpl.CacheType.MEMORY.value
+                || BuildConfig.CACHE_TYPE == CachedDataImpl.CacheType.MEMORY_AND_DISK.value
+        isDiskTypeCache = BuildConfig.CACHE_TYPE == CachedDataImpl.CacheType.DISK.value
+                || BuildConfig.CACHE_TYPE == CachedDataImpl.CacheType.MEMORY_AND_DISK.value
     }
 
     /**
@@ -92,7 +96,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, memoryCache.size())
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
     }
 
     /**
@@ -113,7 +121,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, memoryCache.size())
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
 
         testMemoryCacheClear()
     }
@@ -136,7 +148,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
     }
 
     /**
@@ -157,7 +173,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
         testDiskCacheClear()
     }
 
@@ -180,10 +200,13 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, memoryCache.size())
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
 
         val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
-
         assertEquals(true, insertingBitmap.sameAs(fetchedBitmap))
     }
 
@@ -206,7 +229,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, memoryCache.size())
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
 
         val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
 
@@ -234,7 +261,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, memoryCache.size())
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
 
         val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
 
@@ -263,7 +294,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
 
         val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
         assertEquals(true, insertingBitmap.sameAs(fetchedBitmap))
@@ -288,7 +323,11 @@ class CacheInstrumentedTest {
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
 
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
 
         val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
         fetchedBitmap?.let {
@@ -314,8 +353,11 @@ class CacheInstrumentedTest {
         assertEquals(0, diskCacheDir.listFiles()?.size)
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
 
         val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
         fetchedBitmap?.let {
@@ -416,11 +458,18 @@ class CacheInstrumentedTest {
         assertEquals(0, memoryCache.size())
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-        assertEquals(1, memoryCache.size())
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
 
         val cacheEntry = memoryCache.getCache().get(imageUrl)
-
-        assertFalse(cacheEntry.isExpired())
+        if (isMemoryTypeCache) {
+            assertFalse(cacheEntry.isExpired())
+        } else {
+            assertNull(cacheEntry)
+        }
     }
 
 
@@ -440,15 +489,22 @@ class CacheInstrumentedTest {
         assertTrue(insertingBitmap.height > 0)
 
         cachedDataImpl.clearCache()
-        assertEquals(0, diskCacheDir.listFiles()?.size)
+        assertEquals(0, memoryCache.size())
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isMemoryTypeCache) {
+            assertEquals(1, memoryCache.size())
+        } else {
+            assertEquals(0, memoryCache.size())
+        }
 
         Thread.sleep(1000)
-
-        assertTrue(diskCache.isValidityExpired(imageUrl.hashCode().toString(), 200))
+        val cacheEntry = memoryCache.getCache().get(imageUrl)
+        if (isMemoryTypeCache) {
+            assertTrue(cacheEntry.isExpired(200))
+        } else {
+            assertNull(cacheEntry)
+        }
     }
 
     /**
@@ -470,10 +526,14 @@ class CacheInstrumentedTest {
         assertEquals(0, diskCacheDir.listFiles()?.size)
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
 
-        assertEquals(1, diskCacheDir.listFiles()?.size)
-
-        assertFalse(diskCache.isValidityExpired(imageUrl.hashCode().toString()))
+        val isValidityExpired = diskCache.isValidityExpired(imageUrl.hashCode().toString())
+        assertFalse(isValidityExpired)
     }
 
     /**
@@ -495,11 +555,20 @@ class CacheInstrumentedTest {
         assertEquals(0, diskCacheDir.listFiles()?.size)
 
         cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-        assertEquals(1, diskCacheDir.listFiles()?.size)
+        if (isDiskTypeCache) {
+            assertEquals(1, diskCacheDir.listFiles()?.size)
+        } else {
+            assertEquals(0, diskCacheDir.listFiles()?.size)
+        }
 
         Thread.sleep(1000)
 
-        assertTrue(diskCache.isValidityExpired(imageUrl.hashCode().toString(), 200))
+        val isValidityExpired = diskCache.isValidityExpired(imageUrl.hashCode().toString(), 200)
+        if (isDiskTypeCache) {
+            assertTrue(isValidityExpired)
+        } else {
+            assertFalse(isValidityExpired)
+        }
     }
 
     //Disk space Availability checks
@@ -618,16 +687,19 @@ class CacheInstrumentedTest {
             }
         } else {
             cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-            assertEquals(1, memoryCache.size())
-
-            val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
-            fetchedBitmap?.let {
-                val cacheEntry = memoryCache.getCache().get(imageUrl)
-                if (!cacheEntry.isExpired()) {
-                    assertBitmapsEqualityWithColor(insertingBitmap, it)
+            if (isMemoryTypeCache) {
+                assertEquals(1, memoryCache.size())
+                val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
+                fetchedBitmap?.let {
+                    val cacheEntry = memoryCache.getCache().get(imageUrl)
+                    if (!cacheEntry.isExpired()) {
+                        assertBitmapsEqualityWithColor(insertingBitmap, it)
+                    }
                 }
+                    ?: fail("There is no image with the key $imageUrl in the memory cache by comparing color")
+            } else {
+                assertEquals(0, memoryCache.size())
             }
-                ?: fail("There is no image with the key $imageUrl in the memory cache by comparing color")
         }
     }
 
@@ -672,16 +744,19 @@ class CacheInstrumentedTest {
             }
         } else {
             cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-            assertEquals(1, memoryCache.size())
-
-            val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
-            fetchedBitmap?.let {
-                val cacheEntry = memoryCache.getCache().get(imageUrl)
-                if (!cacheEntry.isExpired()) {
-                    assertBitmapsEqualityWithColor(insertingBitmap, it)
+            if (isMemoryTypeCache) {
+                assertEquals(1, memoryCache.size())
+                val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
+                fetchedBitmap?.let {
+                    val cacheEntry = memoryCache.getCache().get(imageUrl)
+                    if (!cacheEntry.isExpired()) {
+                        assertBitmapsEqualityWithColor(insertingBitmap, it)
+                    }
                 }
+                    ?: fail("There is no image with the key $imageUrl in the memory cache by comparing color")
+            } else {
+                assertEquals(0, memoryCache.size())
             }
-                ?: fail("There is no image with the key $imageUrl in the memory cache by comparing color")
         }
     }
 
@@ -714,7 +789,8 @@ class CacheInstrumentedTest {
         assertTrue(insertingBitmap.height > 0)
 
         cachedDataImpl.clearCache()
-        assertEquals(0, memoryCache.size())
+        assertEquals(0, diskCacheDir.listFiles()?.size)
+
 
         val isSpaceAvailable =
             isSpaceAvailable(insertingBitmap, CachedDataImpl.MAX_CACHE_SIZE_BYTES)
@@ -726,16 +802,19 @@ class CacheInstrumentedTest {
             }
         } else {
             cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-            assertEquals(1, diskCacheDir.listFiles()?.size)
-
-            val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
-            fetchedBitmap?.let {
-                val isValidityExpired = diskCache.isValidityExpired(imageUrl.hashCode().toString())
-                if (!isValidityExpired) {
-                    assertBitmapsEqualityWithColor(insertingBitmap, it)
+            if (isDiskTypeCache) {
+                assertEquals(1, diskCacheDir.listFiles()?.size)
+                val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
+                fetchedBitmap?.let {
+                    val isValidityExpired = diskCache.isValidityExpired(imageUrl.hashCode().toString())
+                    if (!isValidityExpired) {
+                        assertBitmapsEqualityWithColor(insertingBitmap, it)
+                    }
                 }
+                    ?: fail("There is no image with the key $imageUrl in the disk cache by comparing color")
+            } else {
+                assertEquals(0, diskCacheDir.listFiles()?.size)
             }
-                ?: fail("There is no image with the key $imageUrl in the disk cache by comparing color")
         }
     }
 
@@ -768,7 +847,7 @@ class CacheInstrumentedTest {
         assertTrue(insertingBitmap.height > 0)
 
         cachedDataImpl.clearCache()
-        assertEquals(0, memoryCache.size())
+        assertEquals(0, diskCacheDir.listFiles()?.size)
 
         val isSpaceAvailable =
             isSpaceAvailable(insertingBitmap, 1L)
@@ -780,16 +859,19 @@ class CacheInstrumentedTest {
             }
         } else {
             cachedDataImpl.saveImage(imageUrl, insertingBitmap)
-            assertEquals(1, diskCacheDir.listFiles()?.size)
-
-            val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
-            fetchedBitmap?.let {
-                val isValidityExpired = diskCache.isValidityExpired(imageUrl.hashCode().toString())
-                if (!isValidityExpired) {
-                    assertBitmapsEqualityWithColor(insertingBitmap, it)
+            if (isDiskTypeCache) {
+                assertEquals(1, diskCacheDir.listFiles()?.size)
+                val fetchedBitmap = cachedDataImpl.getImage(imageUrl)
+                fetchedBitmap?.let {
+                    val isValidityExpired = diskCache.isValidityExpired(imageUrl.hashCode().toString())
+                    if (!isValidityExpired) {
+                        assertBitmapsEqualityWithColor(insertingBitmap, it)
+                    }
                 }
+                    ?: fail("There is no image with the key $imageUrl in the disk cache by comparing color")
+            } else {
+                assertEquals(0, diskCacheDir.listFiles()?.size)
             }
-                ?: fail("There is no image with the key $imageUrl in the disk cache by comparing color")
         }
     }
 }
