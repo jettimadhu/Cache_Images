@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/toolbar_shadow_view_height"
+    android:layout_marginTop="@dimen/toolbar_height"
+    android:background="@drawable/shadow"
+    android:rotation="@dimen/toolbar_shadow_view_rotation" />

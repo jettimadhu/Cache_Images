@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Photos</string>
+    <string name="error_text">There\'s some network issue. Check your internet connection or API key</string>
+    <string name="no_network_text">Please Check your internet connection and try again</string>
+    <string name="url_can_not_empty">Url should not be empty. Please try again</string>
+    <string name="bad_request">Missing a required parameters. Please try again</string>
+    <string name="unauthorized">Invalid Access Token. Please try with proper token</string>
+    <string name="forbidden">Missing permissions to perform request</string>
+    <string name="not_found">The requested resource doesn’t exist</string>
+    <string name="generic_error">Something went wrong. Please try again</string>
+</resources>
