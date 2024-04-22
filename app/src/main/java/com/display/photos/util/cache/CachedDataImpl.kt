@@ -9,7 +9,7 @@ import com.display.photos.BuildConfig
 class CachedDataImpl(private val memoryCache: MemoryCache, private val diskCache: DiskCache) :
     ICacheData {
 
-    enum class CacheType(val value : Int) {
+    enum class CacheType(val value: Int) {
         MEMORY(1),
         DISK(2),
         MEMORY_AND_DISK(3),
@@ -25,9 +25,11 @@ class CachedDataImpl(private val memoryCache: MemoryCache, private val diskCache
             CacheType.MEMORY.value -> {
                 memoryCache.saveImage(imageUrl, bitmap)
             }
+
             CacheType.DISK.value -> {
                 diskCache.saveImage(imageUrl, bitmap)
             }
+
             CacheType.MEMORY_AND_DISK.value -> {
                 memoryCache.saveImage(imageUrl, bitmap)
                 diskCache.saveImage(imageUrl, bitmap)
@@ -41,16 +43,24 @@ class CachedDataImpl(private val memoryCache: MemoryCache, private val diskCache
      *
      * @return bitmap bitmap image from cache
      */
-   override fun getImage(imageUrl: String): Bitmap? {
+    override fun getImage(imageUrl: String): Bitmap? {
         return when (BuildConfig.CACHE_TYPE) {
             CacheType.MEMORY.value -> {
                 memoryCache.getImage(imageUrl)
             }
+
             CacheType.DISK.value -> {
                 diskCache.getImage(imageUrl)
             }
+
             else -> {
-                memoryCache.getImage(imageUrl) ?: diskCache.getImage(imageUrl)
+                memoryCache.getImage(imageUrl) ?: run {
+                    val bitmap = diskCache.getImage(imageUrl)
+                    bitmap?.let {
+                        memoryCache.saveImage(imageUrl, it)
+                    }
+                    bitmap
+                }
             }
         }
     }
@@ -58,7 +68,7 @@ class CachedDataImpl(private val memoryCache: MemoryCache, private val diskCache
     /**
      * To delete all cache files.
      */
-   override fun clearCache() {
+    override fun clearCache() {
         memoryCache.clearCache()
         diskCache.clearCache()
     }
