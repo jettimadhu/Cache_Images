@@ -23,10 +23,11 @@ For demo purposes, we can request a maximum of 50 requests in an hour.
    1. MEMORY - 1, 
    2. DISK - 2,
    3. MEMORY_AND_DISK - 3 
-4. Caching the images with maximum size and expiry time.
+4. If the image is read from disk, updating the same to the memory cache. 
+5. Caching the images with maximum size and expiry time.
    1. Validating the expiry time (24 Hours) before returning the requested image from both memory and disk cache. 
    2. Saving the images in the Disk cache by checking the available space in the cache.
-5. Added error handling for basic operations.
+6. Added error handling for basic operations.
 
 **Advantages of caching** 
 1. Improved performance
